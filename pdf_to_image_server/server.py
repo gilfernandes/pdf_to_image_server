@@ -5,10 +5,10 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi import File, UploadFile
 
 from pdf_to_image_server.config import cfg
+from pdf_to_image_server.log_init import logger
+from pdf_to_image_server.caching import read_file, write_file
 
 from pdf_image_ocr.image_ocr import convert_img_to_text
-
-from log_init import logger
 
 import uvicorn
 
@@ -22,8 +22,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+CODE_OK = 'OK'
+CODE_FAIL = 'FAIL'
+
+
+def message_factory(file_name: str, contents: str, code: str) -> dict:
+    return {
+        "code": code,
+        "message": f"Successfully uploaded {file_name}",
+        "extracted_text": contents
+    }
+
+
 @app.post("/upload")
 def upload(file: UploadFile = File(...)):
+    cached_contents = read_file(file.filename)
+    if cached_contents is not None:
+        return message_factory(file.filename, cached_contents, CODE_OK)
     try:
         contents = file.file.read()
         logger.info("Upload received")
@@ -32,20 +47,18 @@ def upload(file: UploadFile = File(...)):
         with open(file_path, 'wb') as f:
             f.write(contents)
             extracted_text = convert_img_to_text(file_path)
-            return {
-                "message": f"Successfully uploaded {file.filename}",
-                "extracted_text": extracted_text
-            }
+            write_file(content=extracted_text, file_name=file.filename)
+            return message_factory(file.filename, extracted_text, CODE_OK)
     except Exception:
         logger.exception("An error occurred during file uplodate")
-        return {"message": "There was an error uploading the file"}
+        return {'code': CODE_FAIL, "message": "There was an error uploading the file"}
     finally:
-        file.file.close()
-        if file_path and file_path.exists:
-            try:
-                os.remove(file_path)
-            except Exception:
-                logger.exception("Could not delete file.")
+        try:
+            file.file.close()
+            if file_path and file_path.exists:
+                    os.remove(file_path)
+        except Exception:
+            logger.exception("Could not delete file.")
 
 
 if __name__ == '__main__':
