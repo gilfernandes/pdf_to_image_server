@@ -22,6 +22,9 @@ class Config:
     max_upload_MB = os.getenv('MAX_UPLOAD_MB')
     max_message_size = max_upload_MB * 1024 * 1024
     fast_api_port = int(os.getenv('FAST_API_PORT'))
+    remote_server = os.getenv('REMOTE_SERVER')
+    # For testing purposes
+    doc_location = Path(os.getenv('DOC_LOCATION'))
     
 
 cfg = Config()

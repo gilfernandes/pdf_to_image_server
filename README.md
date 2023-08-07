@@ -13,10 +13,10 @@ conda activate pdf_to_image_server
 conda install -c conda-forge poppler
 pip install pdf2image opencv-python
 conda install -c conda-forge pytesseract
-pip install python-dotenv
-pip install fastapi python-multipart
+pip install python-dotenv fastapi python-multipart
 pip install --force-reinstall pdf_image_ocr-1.0-py3-none-any.whl
 pip install uvicorn
+pip install requests
 pip install -e .
 
 ```
