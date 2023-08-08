@@ -61,6 +61,19 @@ def upload(file: UploadFile = File(...)):
             logger.exception("Could not delete file.")
 
 
+
+@app.post("/upload_styles")
+def upload(file: UploadFile = File(...)):
+    contents = file.file.read()
+    target_css_folder = cfg.target_css_folder
+    target_file = target_css_folder/'onepoint.css'
+    with open(target_file, 'wb') as f:
+        f.write(contents)
+    return {
+        'code': CODE_OK
+    }
+
+
 if __name__ == '__main__':
     logger.info("Fast API server starting on port: %s", cfg.fast_api_port)    
     uvicorn.run(app, host="0.0.0.0", port=cfg.fast_api_port)

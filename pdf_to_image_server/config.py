@@ -33,6 +33,8 @@ class Config:
     create_if_not_exists(doc_location)
     cache_folder = Path(os.getenv('CACHE_FOLDER'))
     create_if_not_exists(cache_folder)
+    target_css_folder = Path(os.getenv('TARGET_CSS_FOLDER'))
+    create_if_not_exists(target_css_folder)
 
     
 
