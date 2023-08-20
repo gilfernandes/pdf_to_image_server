@@ -74,6 +74,14 @@ def upload(file: UploadFile = File(...)):
     }
 
 
+@app.get("/cached_file/{file_name}")
+async def read_item(file_name: str):
+    cached_contents = read_file(file_name)
+    if cached_contents is not None:
+        return message_factory(file_name, cached_contents, CODE_OK)
+    return message_factory(file_name, "", CODE_FAIL)
+
+
 if __name__ == '__main__':
     logger.info("Fast API server starting on port: %s", cfg.fast_api_port)    
     uvicorn.run(app, host="0.0.0.0", port=cfg.fast_api_port)

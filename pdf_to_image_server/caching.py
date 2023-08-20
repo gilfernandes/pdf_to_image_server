@@ -7,8 +7,8 @@ def build_cache_name(file_name: str):
 
 
 def read_file(file_name: str) -> Optional[str]:
-    logger.info("Reading file: %s", file_name)
     file = build_cache_name(file_name)
+    logger.info("Reading file: %s", file)
     if not file.exists():
         return None
     with open(file, 'r') as f:
